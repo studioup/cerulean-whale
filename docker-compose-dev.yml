@@ -1,0 +1,31 @@
+version: "2"
+services:
+  web:
+    volumes:
+        - ./site.conf:/etc/nginx/conf.d/default.conf
+    volumes_from:
+        - php
+  mariadb:    
+    # thats the important thing
+    volumes:
+        #- ./database:/var/lib/mysql
+        - ./my.cnf:/etc/mysql/my.cnf
+  php:    
+    # thats the important thing
+    volumes_from:
+        #- cerulean-html-sync:/var/www/html:rw
+        #- cerulean-log-sync:/var/www/html:rw
+        - container:cerulean-html-sync:rw # will be mounted on /app/code
+        - container:cerulean-log-sync:rw
+    volumes:
+        - ./log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+        - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+        - ./opcache-recommended.ini:/usr/local/etc/php/conf.d/opcache-recommended.ini
+        #- cerulean-html-sync:/var/www/html:rw
+        #- cerulean-log-sync:/var/log:rw
+
+volumes:
+  cerulean-html-sync:
+    external: true
+  cerulean-log-sync:
+    external: true
