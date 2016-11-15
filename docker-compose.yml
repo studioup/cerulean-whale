@@ -45,6 +45,21 @@ services:
             WORDPRESS_DB_PASSWORD: replace_with_wp_db_password
             WORDPRESS_DB_NAME: replace_with_wp_db_name
             WORDPRESS_TABLE_PREFIX: replace_with_wp_table_prefix
+            S3_UPLOADS_BUCKET: replace_with_s3_bucket
+            S3_UPLOADS_KEY: replace_with_s3_key
+            S3_UPLOADS_SECRET: replace_with_s3_secret
+            S3_UPLOADS_REGION: replace_with_s3_region
+            S3_UPLOADS_AUTOENABLE: 'false'
+            SMTP_SERVER: replace_with_ses_smtp_url
+            SMTP_USER: replace_with_ses_smtp_user
+            SMTP_PASSWORD: replace_with_ses_smtp_password
+            SMTP_ENC_TYPE: tls
+            SMTP_PORT: 587
+            SMTP_SENDER_NAME: replace_with_sitename
+            SMTP_SENDER_EMAIL: replace_with_sender_email
+            SMTP_ENVELOPE_SENDER_EMAIL: replace_with_sender_email
+            SMTP_REPLY_TO_EMAIL: replace_with_replyto_email
+            GOOGLE_TAG_ID: replace_with_googletagid #https://tagmanager.google.com/#/admin/accounts/create
             WP_SITEURL: http://localhost/ #keep the final slash
             ADMIN_EMAIL: info@studioup.it
             ADMIN_USER: replace_with_wp_admin_user
@@ -73,6 +88,8 @@ services:
                 better-wp-security --activate,
                 wp-mobile-detect,
                 #ssh-sftp-updater-support
+                postman-smtp --activate,
+                [S3-Uploads]https://github.com/humanmade/S3-Uploads/archive/master.zip --activate,
                 [formidable]http://studioup.it/wp_plugins/formidable-2.0.14.zip --activate,
                 [sitepress-multilingual-cms]http://studioup.it/wp_plugins/sitepress-multilingual-cms.3.1.9.7.zip,
                 [wpml-cms-nav]http://studioup.it/wp_plugins/wpml-cms-nav.1.4.7.zip,
