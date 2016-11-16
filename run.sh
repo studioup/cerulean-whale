@@ -58,10 +58,6 @@ core config:
     define ('WP_CONTENT_URL', WP_SITEURL . WP_CONTENT_FOLDERNAME );
     define('UPLOADS', 'uploads' );
     define('MASK_THEME_URL',true);
-    if ( defined( 'WP_CLI' ) ) {
-        $_SERVER['HTTP_HOST'] = $_SERVER['SERVER_NAME'] = ''; // avoid wpml error message
-        $_SERVER['SERVER_PORT'] = 80;
-    }
     define( 'GOOGLE_TAG_ID', '${GOOGLE_TAG_ID}' );
     define( 'S3_UPLOADS_BUCKET', '${S3_UPLOADS_BUCKET,,}' );
     define( 'S3_UPLOADS_KEY', '${S3_UPLOADS_KEY,,}' );
@@ -170,7 +166,7 @@ main() {
     h3 "Updating options"
 
     postman_options=$(php -r "
-    echo serialize( array (
+    echo json_encode( array (
         'enc_type' => '$SMTP_ENC_TYPE',
         'hostname' => '$SMTP_SERVER',
         'port' => $SMTP_PORT,
@@ -182,12 +178,12 @@ main() {
         'oauth_client_id' => '',
         'oauth_client_secret' => '',
         'basic_auth_username' => '$SMTP_USER',
-        'basic_auth_password' => '$SMTP_PASSWORD',
+        'basic_auth_password' => base64_encode ('$SMTP_PASSWORD'),
         'mandrill_api_key' => '',
         'sendgrid_api_key' => '',
         'reply_to' => '$SMTP_REPLY_TO_EMAIL',
-        'prevent_sender_name_override' => '',
-        'prevent_sender_email_override' => '',
+        'prevent_sender_name_override' => 'on',
+        'prevent_sender_email_override' => 'on',
         'disable_email_validation' => '',
         'forced_to' => '',
         'forced_cc' => '',
@@ -204,7 +200,7 @@ main() {
         'tmp_dir' => '/tmp',
       )); "
     )
-    WP option update postman_options "$postman_options"
+    WP option update postman_options "$postman_options" --format=json
  
     h1 "WordPress Configuration Complete!"
   fi
