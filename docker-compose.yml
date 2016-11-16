@@ -45,6 +45,7 @@ services:
             WORDPRESS_DB_PASSWORD: replace_with_wp_db_password
             WORDPRESS_DB_NAME: replace_with_wp_db_name
             WORDPRESS_TABLE_PREFIX: replace_with_wp_table_prefix
+            WORDPRESS_SITE_NAME: replace_with_sitename
             S3_UPLOADS_BUCKET: replace_with_s3_bucket
             S3_UPLOADS_KEY: replace_with_s3_key
             S3_UPLOADS_SECRET: replace_with_s3_secret
@@ -61,7 +62,7 @@ services:
             SMTP_REPLY_TO_EMAIL: replace_with_replyto_email
             GOOGLE_TAG_ID: replace_with_googletagid #https://tagmanager.google.com/#/admin/accounts/create
             WP_SITEURL: http://localhost/ #keep the final slash
-            ADMIN_EMAIL: info@studioup.it
+            ADMIN_EMAIL: replace_with_wp_admin_email
             ADMIN_USER: replace_with_wp_admin_user
             ADMIN_PASSWORD: replace_with_wp_admin_pass
             PERMALINKS: '/%postname%/'
