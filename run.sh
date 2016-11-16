@@ -12,7 +12,7 @@ DB_NAME=${WORDPRESS_DB_NAME:-'wordpress'}
 DB_PASS=${WORDPRESS_DB_PASSWORD:-'root'}
 DB_USER=${WORDPRESS_DB_USER:-'root'}
 DB_PREFIX=${WORDPRESS_TABLE_PREFIX:-'wp_'}
-ADMIN_EMAIL=${ADMIN_EMAIL:-"info@studioup.it"}
+
 PERMALINKS=${PERMALINKS:-'/%postname%/'}
 WP_DEBUG_DISPLAY=${WP_DEBUG_DISPLAY:-'true'}
 WP_DEBUG_LOG=${WB_DEBUG_LOG:-'false'}
@@ -21,6 +21,11 @@ WP_SITEURL=${WP_SITEURL:-'false'}
 WP_CONTENT_FOLDERNAME=${WP_CONTENT_FOLDERNAME:-'content'}
 MASK_THEME_URL= ${MASK_THEME_URL:-'true'}
 SKIP_SETUP=${SKIP_SETUP:-'false'}
+WP_SITEURL=${WP_SITEURL:-"http://localhost/"}
+ADMIN_EMAIL=${ADMIN_EMAIL:-"info@studioup.it"}
+ADMIN_USER=${ADMIN_USER:-"studioup"}
+ADMIN_PASSWORD: ${ADMIN_PASSWORD:-"1757564A87304C4"}
+
 
 [ "$SEARCH_REPLACE" ] && \
   BEFORE_URL=$(echo "$SEARCH_REPLACE" | cut -d ',' -f 1) && \
@@ -53,10 +58,20 @@ core config:
     define ('WP_CONTENT_URL', WP_SITEURL . WP_CONTENT_FOLDERNAME );
     define('UPLOADS', 'uploads' );
     define('MASK_THEME_URL',true);
+    if ( defined( 'WP_CLI' ) ) {
+        $_SERVER['HTTP_HOST'] = $_SERVER['SERVER_NAME'] = ''; // avoid wpml error message
+        $_SERVER['SERVER_PORT'] = 80;
+    }
+    define( 'GOOGLE_TAG_ID', '${GOOGLE_TAG_ID}' );
+    define( 'S3_UPLOADS_BUCKET', '${S3_UPLOADS_BUCKET,,}' );
+    define( 'S3_UPLOADS_KEY', '${S3_UPLOADS_KEY,,}' );
+    define( 'S3_UPLOADS_SECRET', '${S3_UPLOADS_SECRET,,}' );
+    define( 'S3_UPLOADS_REGION', '${S3_UPLOADS_REGION,,}' );
+    define( 'S3_UPLOADS_AUTOENABLE', ${S3_UPLOADS_AUTOENABLE,,} );
 
 core install:
-  url: $([ "$AFTER_URL" ] && echo "$AFTER_URL" || echo localhost:8080)
-  title: $DB_NAME
+  url: $([ "$AFTER_URL" ] && echo "$AFTER_URL" || ${WP_SITEURL})
+  title: $([ "$WORDPRESS_SITE_NAME" ] && echo "$WORDPRESS_SITE_NAME" || ${DB_NAME}) 
   admin_user: $ADMIN_USER
   admin_password: $ADMIN_PASSWORD
   admin_email: $ADMIN_EMAIL
@@ -152,6 +167,45 @@ main() {
     chown -R :docker /var/www/html/wp-content/uploads
     STATUS $?
 
+    h3 "Updating options"
+
+    postman_options=$(php -r "
+    echo serialize( array (
+        'enc_type' => '$SMTP_ENC_TYPE',
+        'hostname' => '$SMTP_SERVER',
+        'port' => $SMTP_PORT,
+        'sender_email' => '$SMTP_SENDER_EMAIL',
+        'envelope_sender' => '$SMTP_ENVELOPE_SENDER_EMAIL',
+        'transport_type' => 'smtp',
+        'auth_type' => 'plain',
+        'sender_name' => '$SMTP_SENDER_NAME',
+        'oauth_client_id' => '',
+        'oauth_client_secret' => '',
+        'basic_auth_username' => '$SMTP_USER',
+        'basic_auth_password' => '$SMTP_PASSWORD',
+        'mandrill_api_key' => '',
+        'sendgrid_api_key' => '',
+        'reply_to' => '$SMTP_REPLY_TO_EMAIL',
+        'prevent_sender_name_override' => '',
+        'prevent_sender_email_override' => '',
+        'disable_email_validation' => '',
+        'forced_to' => '',
+        'forced_cc' => '',
+        'forced_bcc' => '',
+        'headers' => '',
+        'read_timeout' => 60,
+        'connection_timeout' => 10,
+        'log_level' => 40000,
+        'mail_log_enabled' => 'true',
+        'mail_log_max_entries' => 250,
+        'run_mode' => 'production',
+        'stealth_mode' => '',
+        'transcript_size' => 128,
+        'tmp_dir' => '/tmp',
+      )); "
+    )
+    WP option update postman_options "$postman_options"
+ 
     h1 "WordPress Configuration Complete!"
   fi
   #rm -f /var/run/apache2/apache2.pid
